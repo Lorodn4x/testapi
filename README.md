@@ -16,8 +16,8 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone [url-репозитория]
-cd [имя-директории]
+git clone https://github.com/Lorodn4x/testapi.git
+cd api
 ```
 
 2. Установите зависимости:
