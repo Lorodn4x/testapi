@@ -228,7 +228,8 @@ Instructions:
                 json=pollinations_request,
                 timeout=30.0
             )
-            
+            print("DEBUG: Pollinations Request:", pollinations_request)
+            print("DEBUG: Raw Pollinations Response:", response.text)
             if response.status_code != 200:
                 raise HTTPException(
                     status_code=response.status_code,

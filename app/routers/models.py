@@ -51,7 +51,19 @@ async def list_models():
                 )
             
             try:
-                pollinations_models = response.json()
+                try:
+                    pollinations_models = response.json()
+                    print("Parsed Models:", pollinations_models)
+                except json.JSONDecodeError:
+                    # Try to fix malformed JSON manually
+                    fixed_json = "[" + response.text.replace("}{", "},{") + "]"
+                    try:
+                        pollinations_models = json.loads(fixed_json)
+                    except Exception:
+                        raise HTTPException(
+                            status_code=500,
+                            detail=f"Failed to parse fixed JSON response: {response.text}"
+                        )
             except json.JSONDecodeError:
                 raise HTTPException(
                     status_code=500,
@@ -72,9 +84,21 @@ async def list_models():
             
             # Convert Pollinations models to OpenAI format
             models = []
-            for model_id in model_ids:
-                if isinstance(model_id, str):
-                    models.append(Model(id=model_id))
+            formatted_models = []
+            for model_data in pollinations_models:
+                if isinstance(model_data, dict):
+                    formatted_models.append({
+                        "id": model_data.get("name", "unknown"),  # Assign 'id' from 'name'
+                        "name": model_data.get("name", "unknown"),
+                        "type": model_data.get("type", "unknown"),
+                        "censored": model_data.get("censored", False),
+                        "description": model_data.get("description", ""),
+                        "baseModel": model_data.get("baseModel", False),
+                        "reasoning": model_data.get("reasoning", None),
+                        "vision": model_data.get("vision", None),
+                        "provider": model_data.get("provider", None),
+                    })
+            return {"data": formatted_models}
             
             return ModelsResponse(data=models)
             
